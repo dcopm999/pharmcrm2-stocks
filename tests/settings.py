@@ -30,6 +30,10 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "rest_framework",
+    "crispy_forms",
+    "reversion",
+    "drf_yasg",
     "stocks",
     "goods",
     "mptt",
@@ -53,7 +57,7 @@ TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS": [
-            os.path.join(BASE_DIR, "templates"),
+            os.path.join(BASE_DIR, "tests", "templates"),
         ],
         "APP_DIRS": True,
         "OPTIONS": {
