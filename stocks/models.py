@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
+import reversion
 from django.db import models, transaction
-from django.template.defaultfilters import slugify
 from django.urls import reverse
 from django.utils.translation import gettext as _
 from mptt.models import MPTTModel, TreeForeignKey
+from slugify import slugify
 
 
+@reversion.register()
 class Stock(MPTTModel):
     name = models.CharField(max_length=250, verbose_name=_("Name"))
     slug = models.SlugField(
@@ -40,6 +42,7 @@ class Stock(MPTTModel):
         super().save(*args, **kwargs)
 
 
+@reversion.register()
 class Batch(models.Model):
     stock = models.ForeignKey(Stock, on_delete=models.CASCADE, verbose_name=_("Stock"))
     number = models.CharField(max_length=250, verbose_name=_("Batch number"))
@@ -68,6 +71,7 @@ class Batch(models.Model):
         verbose_name_plural = _("Product batchs")
 
 
+@reversion.register()
 class BatchPharmItem(models.Model):
     product = models.ForeignKey(
         "goods.PharmProduct", on_delete=models.CASCADE, verbose_name=_("Product")
@@ -132,6 +136,7 @@ class BatchPharmItem(models.Model):
         verbose_name_plural = _("Pharmaceutical batch items")
 
 
+@reversion.register()
 class Balance(models.Model):
     stock = models.ForeignKey(Stock, on_delete=models.CASCADE, verbose_name=_("Stock"))
     pharm_item = models.ForeignKey(
@@ -170,6 +175,7 @@ class Balance(models.Model):
         verbose_name_plural = _("Balances")
 
 
+@reversion.register()
 class Order(models.Model):
     incoming = models.ForeignKey(
         Stock,
