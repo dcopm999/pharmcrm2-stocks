@@ -5,5 +5,4 @@ django-mptt==0.13.4
 drf-yasg==1.20.0
 django-reversion==5.0.1
 django-crispy-forms==1.12.0
-
 git+https://github.com/dcopm999/pharmcrm2-goods.git
