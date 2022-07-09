@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 from django.contrib import admin
 from django.utils.translation import gettext as _
+from import_export.admin import ImportExportModelAdmin
 from mptt.admin import MPTTModelAdmin
 
-from stocks import models
+from stocks import imports_exports, models
 
 
 class BatchPharmItemInline(admin.TabularInline):
@@ -58,7 +59,8 @@ class BalanceAdmin(admin.ModelAdmin):
 
 
 @admin.register(models.Order)
-class OrderAdmin(admin.ModelAdmin):
+class OrderAdmin(ImportExportModelAdmin):
+    resource_class = imports_exports.OrderResource
     list_display = [
         "pharm_item",
         "incoming",
