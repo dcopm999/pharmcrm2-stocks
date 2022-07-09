@@ -205,7 +205,7 @@ class Order(models.Model):
     )
     balance = models.ForeignKey(
         Balance,
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
         null=True,
         blank=True,
         editable=False,
