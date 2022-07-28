@@ -7,9 +7,10 @@ from mptt.admin import MPTTModelAdmin
 from stocks import imports_exports, models
 
 
-class BatchPharmItemInline(admin.TabularInline):
-    model = models.BatchPharmItem
-    autocomplete_fields = ["product"]
+class BatchItemInline(admin.StackedInline):
+    model = models.BatchItem
+    autocomplete_fields = ["good"]
+    extra = 1
 
 
 @admin.register(models.Stock)
@@ -21,16 +22,16 @@ class StockAdmin(MPTTModelAdmin):
 @admin.register(models.Batch)
 class BatchAdmin(admin.ModelAdmin):
     inlines = [
-        BatchPharmItemInline,
+        BatchItemInline,
     ]
     list_display = ["number", "stock", "created", "updated"]
     search_fields = ["number", "batch"]
 
 
-@admin.register(models.BatchPharmItem)
-class BatchPharmItemAdmin(admin.ModelAdmin):
+@admin.register(models.BatchItem)
+class BatchItemAdmin(admin.ModelAdmin):
     list_display = [
-        "product",
+        "good",
         "batch",
         "serial",
         "quantity_original",
@@ -41,28 +42,29 @@ class BatchPharmItemAdmin(admin.ModelAdmin):
         "expirati\
 on_date",
     ]
-    search_fields = ["product", "batch", "serial", "full_name"]
-    autocomplete_fields = ["product", "batch"]
+    search_fields = ["good", "batch", "serial", "full_name"]
+    autocomplete_fields = ["good", "batch"]
 
 
 @admin.register(models.Balance)
 class BalanceAdmin(admin.ModelAdmin):
     list_display = [
-        "pharm_item",
+        "batch_item",
         "quantity_original",
         "quantity_item",
         "price_sum",
         "stock",
     ]
     list_filter = ["stock"]
-    autocomplete_fields = ["stock", "pharm_item"]
+    search_fields = ["batch_item"]
+    autocomplete_fields = ["stock", "batch_item"]
 
 
 @admin.register(models.Order)
 class OrderAdmin(ImportExportModelAdmin):
     resource_class = imports_exports.OrderResource
     list_display = [
-        "pharm_item",
+        "batch_item",
         "incoming",
         "outgoing",
         "quantity_original",
