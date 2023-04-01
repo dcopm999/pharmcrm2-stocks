@@ -15,9 +15,9 @@ class BatchSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class BatchPharmItemSerializer(serializers.ModelSerializer):
+class BatchItemSerializer(serializers.ModelSerializer):
     class Meta:
-        model = models.BatchPharmItem
+        model = models.BatchItem
         fields = "__all__"
 
 

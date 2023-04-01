@@ -2,6 +2,6 @@ invoke
 twine
 wheel
 zest.releaser
-pre-commit==2.15.0
+pre-commit==3.2.1
 types-python-slugify==5.0.2
 django-stubs

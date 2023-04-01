@@ -17,9 +17,9 @@ class BatchViewSet(ModelViewSet):
     permission_class = [DjangoObjectPermissions]
 
 
-class BatchPharmItemViewSet(ModelViewSet):
-    queryset = models.BatchPharmItem.objects.all()
-    serializer_class = serializers.BatchPharmItemSerializer
+class BatchItemViewSet(ModelViewSet):
+    queryset = models.BatchItem.objects.all()
+    serializer_class = serializers.BatchItemSerializer
     permission_class = [DjangoObjectPermissions]
 
 

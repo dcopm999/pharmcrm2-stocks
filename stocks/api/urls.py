@@ -5,7 +5,7 @@ from stocks.api import views
 router = SimpleRouter()
 router.register("stocks", views.StockViewSet)
 router.register("batch", views.BatchViewSet)
-router.register("batchpharmitem", views.BatchPharmItemViewSet)
+router.register("batch_item", views.BatchItemViewSet)
 router.register("balance", views.BalanceViewSet)
 router.register("order", views.OrderViewSet)
 
