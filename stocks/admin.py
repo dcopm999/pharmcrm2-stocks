@@ -73,6 +73,7 @@ class OrderAdmin(ImportExportModelAdmin):
         "is_done",
     ]
     list_filter = ["is_approved"]
+    search_fields = ["goods"]
     autocomplete_fields = ["incoming", "outgoing"]
     actions = ["make_approved"]
 
