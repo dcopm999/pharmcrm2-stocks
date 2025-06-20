@@ -71,3 +71,46 @@ class BatchDeleteView(mixins.PermissionRequiredMixin, generic.DeleteView):
     permission_required = "stocks.delete_batch"
     model = models.Batch
     success_url = reverse_lazy("stocks:batch-list")
+
+
+class BatchItemListView(mixins.PermissionRequiredMixin, generic.ListView):
+    permission_required = "stocks.view_batch_item"
+    model = models.BatchItem
+
+
+class BatchItemDetailView(mixins.PermissionRequiredMixin, generic.DetailView):
+    permission_required = "stocks.view_batch_item"
+    model = models.BatchItem
+
+
+class BatchItemCreateView(mixins.PermissionRequiredMixin, generic.CreateView):
+    permission_required = "stocks.add_batch_item"
+    model = models.BatchItem
+    form_class = "forms.BatchItemForm"
+
+
+class BatchItemUpdateView(mixins.PermissionRequiredMixin, generic.UpdateView):
+    permission_required = "stocks.change_batch_item"
+    model = models.BatchItem
+    form_class = forms.BatchItamForm
+
+    def get_success_url(self, *args, **kwargs):
+        return reverse_lazy(
+            "stocks:batch-item-detail", kwargs={"slug": self.object.slug}
+        )
+
+
+class BatchItemDeleteView(mixins.PermissionRequiredMixin, generic.DeleteView):
+    permission_required = "delete_batch_item"
+    model = models.BatchItem
+    success_url = reverse_lazy("stocks:batch-item-list")
+
+
+class BalanceListView(mixins.PermissionRequiredMixin, generic.ListView):
+    permission_required = "view_balance"
+    model = models.Balance
+
+
+class BalanceDetailView(mixins.PermissionRequiredMixin, generic.DetailView):
+    permission_required = "view_balance"
+    model = models.Balance
