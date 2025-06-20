@@ -9,7 +9,11 @@ from slugify import slugify
 
 @reversion.register()
 class Stock(MPTTModel):
-    name = models.CharField(max_length=250, verbose_name=_("Name"))
+    name = models.CharField(
+        max_length=250,
+        verbose_name=_("Name"),
+        help_text=_("Please enter name of stock"),
+    )
     slug = models.SlugField(
         max_length=250, blank=True, editable=False, verbose_name=_("slug")
     )
@@ -19,12 +23,19 @@ class Stock(MPTTModel):
         null=True,
         blank=True,
         related_name=_("children"),
+        help_text=_("please select a parent stock from the list"),
     )
     created = models.DateTimeField(
-        auto_now_add=True, editable=False, verbose_name=_("Created")
+        auto_now_add=True,
+        editable=False,
+        verbose_name=_("Created"),
+        help_text=_("Date of created item"),
     )
     updated = models.DateTimeField(
-        auto_now=True, editable=False, verbose_name=_("Updated")
+        auto_now=True,
+        editable=False,
+        verbose_name=_("Updated"),
+        help_text=_("Date of updated item"),
     )
 
     class Meta:
@@ -44,16 +55,31 @@ class Stock(MPTTModel):
 
 @reversion.register()
 class Batch(models.Model):
-    stock = models.ForeignKey(Stock, on_delete=models.PROTECT, verbose_name=_("Stock"))
-    number = models.CharField(max_length=250, verbose_name=_("Batch number"))
+    stock = models.ForeignKey(
+        Stock,
+        on_delete=models.PROTECT,
+        verbose_name=_("Stock"),
+        help_text=_("please select a stock from the list"),
+    )
+    number = models.CharField(
+        max_length=250,
+        verbose_name=_("Batch number"),
+        help_text=_("please enter a serial number of this batch"),
+    )
     slug = models.SlugField(
         max_length=250, blank=True, editable=False, verbose_name=_("slug")
     )
     created = models.DateTimeField(
-        auto_now_add=True, editable=False, verbose_name=_("Created")
+        auto_now_add=True,
+        editable=False,
+        verbose_name=_("Created"),
+        help_text=_("Date of created item"),
     )
     updated = models.DateTimeField(
-        auto_now=True, editable=False, verbose_name=_("Updated")
+        auto_now=True,
+        editable=False,
+        verbose_name=_("Updated"),
+        help_text=_("Date of created item"),
     )
 
     def get_absolute_url(self):
@@ -264,6 +290,9 @@ class Order(models.Model):
                 outgoung_balance.save()
             except Balance.DoesNotExist:
                 pass
+
+    def sale_goods(self):
+        pass
 
     @transaction.atomic
     def save(self, *args, **kwargs):
