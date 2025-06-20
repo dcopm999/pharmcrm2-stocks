@@ -28,6 +28,8 @@ class BatchItemFactory(DjangoModelFactory):
     serial = factory.Faker("ssn")
     quantity_original = factory.Faker("random_digit_not_null")
     price_original = factory.Faker("random_digit_not_null")
+    production_date = factory.Faker("date")
+    expiration_date = factory.Faker("date")
 
     class Meta:
         model = models.BatchItem
