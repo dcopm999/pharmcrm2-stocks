@@ -33,3 +33,13 @@ class BatchItemFactory(DjangoModelFactory):
 
     class Meta:
         model = models.BatchItem
+
+
+class BalanceFactory(DjangoModelFactory):
+    stock = factory.SubFactory(StockFactory)
+    batch_item = factory.SubFactory(BatchItemFactory)
+    quantity_original = factory.Faker("random_digit_not_null")
+    quantity_item = factory.Faker("random_digit_not_null")
+
+    class Meta:
+        model = models.Balance
