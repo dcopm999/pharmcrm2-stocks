@@ -1,39 +1,20 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, unicode_literals
 
-from django.conf.urls import url
 from django.contrib import admin
 from django.urls import include, path
-from drf_yasg import openapi
-from drf_yasg.views import get_schema_view
-from rest_framework import permissions
-
-schema_view = get_schema_view(
-    openapi.Info(
-        title="Goods API",
-        default_version="v1",
-        description="PharmCRM2: Goods management",
-        terms_of_service="https://www.google.com/policies/terms/",
-        contact=openapi.Contact(email="dcopm999@gmail.com"),
-        license=openapi.License(name="MIT License"),
-    ),
-    public=True,
-    permission_classes=(permissions.AllowAny,),
-)
+from drf_spectacular import views as specta_views
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("", include("stocks.urls", namespace="stocks")),
-    path("api/", include("stocks.api.urls", namespace="stocks-api")),
-    url(
-        "^swagger(?P<format>\.json|\.yaml)$",  # noqa
-        schema_view.without_ui(cache_timeout=0),
-        name="schema-json",
-    ),
+    path("goods/", include("goods.urls", namespace="goods")),
+    path("api/goods/", include("goods.api.urls", namespace="goods-api")),
+    path("api/stocks/", include("stocks.api.urls", namespace="stocks-api")),
+    path("api/schema/", specta_views.SpectacularAPIView.as_view(), name="schema"),
     path(
-        "swagger/",
-        schema_view.with_ui("swagger", cache_timeout=0),
-        name="schema-selfwagger-ui",
+        "api/swagger/",
+        specta_views.SpectacularSwaggerView.as_view(url_name="schema"),
+        name="swagger",
     ),
-    path("redoc/", schema_view.with_ui("redoc", cache_timeout=0), name="schema-redoc"),
 ]

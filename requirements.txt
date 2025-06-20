@@ -1,8 +1,10 @@
 # Additional requirements go here
-djangorestframework==3.15.2
-python-slugify==5.0.2
-django-mptt==0.13.4
-drf-yasg==1.20.0
-django-reversion==5.0.1
-django-crispy-forms==1.12.0
-django-import-export==2.8.0
+djangorestframework>=3.16.0
+python-slugify>=8.0.4
+django-mptt>=0.17.0
+django-reversion==5.1.0
+django-crispy-forms>=2.4
+crispy-bootstrap4>=2025.6
+django-import-export>=4.3.7
+drf-spectacular>=0.28.0
+pharmcrm2-goods@git+https://github.com/dcopm999/pharmcrm2-goods.git
