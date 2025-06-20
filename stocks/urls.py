@@ -39,4 +39,33 @@ urlpatterns = [
     path(
         "batch/delete/<slug:slug>", views.BatchDeleteView.as_view(), name="batch-delete"
     ),
+    # BatchItem
+    path("batch-item/list/", views.BatchItemListView.as_view(), name="batch-item-list"),
+    path(
+        "batch-item/detail/<slug:slug>/",
+        views.BatchItemDetailView.as_view(),
+        name="batch-item-detail",
+    ),
+    path(
+        "batch-item/create/",
+        views.BatchItemCreateView.as_view(),
+        name="batch-item-create",
+    ),
+    path(
+        "batch-item/update/<slug:slug>",
+        views.BatchItemUpdateView.as_view(),
+        name="batch-item-update",
+    ),
+    path(
+        "batch-item/delete/<slug:slug>",
+        views.BatchItemDeleteView.as_view(),
+        name="batch-item-delete",
+    ),
+    # Balance
+    path("balance/list/", views.BalanceListView.as_view(), name="balance-list"),
+    path(
+        "balance/detail/<slug:slug>/",
+        views.BalanceDetailView.as_view(),
+        name="balance-detail",
+    ),
 ]
