@@ -27,7 +27,7 @@ class ModelsCase(TestCase):
         pass
 
 
-class BatchItemCase(TestCase):
+class StockItemCase(TestCase):
     def setUp(self):
         self.item = factories.StockFactory()
 
@@ -46,8 +46,20 @@ class BatchItemCase(TestCase):
         )
 
 
-"""
 class BatchItemCase(TestCase):
     def setUp(self):
-        query = factories.BatchItemFactory()
-"""
+        self.item = factories.BatchFactory()
+
+    def test_save_slug(self):
+        self.assertEqual(self.item.slug, slugify(self.item.number))
+
+    def test_str(self):
+        query = models.Batch.objects.last()
+        self.assertEqual(query.__str__(), query.number)
+
+    def test_get_absolute_url(self):
+        query = models.Batch.objects.last()
+        self.assertEqual(
+            query.get_absolute_url(),
+            reverse("stocks:batch-detail", args=[str(query.slug)]),
+        )
