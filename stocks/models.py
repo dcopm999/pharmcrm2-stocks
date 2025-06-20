@@ -130,7 +130,7 @@ class BatchItem(models.Model):
         return f"{self.good}({self.serial})"
 
     def get_absolute_url(self):
-        return reverse("stocks:batch-detail", args=[str(self.slug)])
+        return reverse("stocks:batch-item-detail", args=[str(self.slug)])
 
     def order_create(self):
         order = Order(
@@ -170,6 +170,13 @@ class Balance(models.Model):
         on_delete=models.PROTECT,
         verbose_name=_("Batch items"),
     )
+    slug = models.SlugField(
+        max_length=250, blank=True, editable=False, verbose_name=_("slug")
+    )
+
+    def get_absolute_url(self):
+        return reverse("stocks:balance-detail", args=[str(self.slug)])
+
     quantity_original = models.PositiveIntegerField(
         default=0, editable=False, verbose_name=_("Quantity original")
     )
@@ -193,7 +200,11 @@ class Balance(models.Model):
         return self.price_sum_original() + self.price_sum_item()
 
     def __str__(self):
-        return f"{self.stock.name}({self.batch_item})"
+        return f"{self.stock.name}({str(self.batch_item)})"
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.__str__())
+        super().save(*args, **kwargs)
 
     class Meta:
         unique_together = ("stock", "batch_item")
