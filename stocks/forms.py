@@ -13,3 +13,17 @@ class BatchForm(ModelForm):
     class Meta:
         model = models.Batch
         fields = ["stock", "number"]
+
+
+class BatchItamForm(ModelForm):
+    class Meta:
+        model = models.BatchItem
+        fields = [
+            "good",
+            "batch",
+            "serial",
+            "quantity_original",
+            "price_original",
+            "quantity_item",
+            "price_item",
+        ]
