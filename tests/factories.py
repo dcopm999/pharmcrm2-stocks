@@ -8,7 +8,8 @@ factory.Faker._DEFAULT_LOCALE = "ru_RU"
 
 
 class StockFactory(DjangoModelFactory):
-    name = factory.Faker("word")
+    # Используем Sequence для гарантии уникальности
+    name = factory.Sequence(lambda n: f"Упаковка-{n}")
 
     class Meta:
         model = models.Stock
