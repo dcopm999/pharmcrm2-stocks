@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import logging
+
 import reversion
 from django.db import models, transaction
 from django.urls import reverse
@@ -6,10 +8,16 @@ from django.utils.translation import gettext as _
 from mptt.models import MPTTModel, TreeForeignKey
 from slugify import slugify
 
+logger = logging.getLogger(__name__)
+
 
 @reversion.register()
 class Stock(MPTTModel):
-    name = models.CharField(max_length=250, verbose_name=_("Name"))
+    name = models.CharField(
+        max_length=250,
+        verbose_name=_("Name"),
+        help_text=_("Please enter name of stock"),
+    )
     slug = models.SlugField(
         max_length=250, blank=True, editable=False, verbose_name=_("slug")
     )
@@ -19,12 +27,19 @@ class Stock(MPTTModel):
         null=True,
         blank=True,
         related_name=_("children"),
+        help_text=_("please select a parent stock from the list"),
     )
     created = models.DateTimeField(
-        auto_now_add=True, editable=False, verbose_name=_("Created")
+        auto_now_add=True,
+        editable=False,
+        verbose_name=_("Created"),
+        help_text=_("Date of created item"),
     )
     updated = models.DateTimeField(
-        auto_now=True, editable=False, verbose_name=_("Updated")
+        auto_now=True,
+        editable=False,
+        verbose_name=_("Updated"),
+        help_text=_("Date of updated item"),
     )
 
     class Meta:
@@ -44,16 +59,31 @@ class Stock(MPTTModel):
 
 @reversion.register()
 class Batch(models.Model):
-    stock = models.ForeignKey(Stock, on_delete=models.PROTECT, verbose_name=_("Stock"))
-    number = models.CharField(max_length=250, verbose_name=_("Batch number"))
+    stock = models.ForeignKey(
+        Stock,
+        on_delete=models.PROTECT,
+        verbose_name=_("Stock"),
+        help_text=_("please select a stock from the list"),
+    )
+    number = models.CharField(
+        max_length=250,
+        verbose_name=_("Batch number"),
+        help_text=_("please enter a serial number of this batch"),
+    )
     slug = models.SlugField(
         max_length=250, blank=True, editable=False, verbose_name=_("slug")
     )
     created = models.DateTimeField(
-        auto_now_add=True, editable=False, verbose_name=_("Created")
+        auto_now_add=True,
+        editable=False,
+        verbose_name=_("Created"),
+        help_text=_("Date of created item"),
     )
     updated = models.DateTimeField(
-        auto_now=True, editable=False, verbose_name=_("Updated")
+        auto_now=True,
+        editable=False,
+        verbose_name=_("Updated"),
+        help_text=_("Date of created item"),
     )
 
     def get_absolute_url(self):
@@ -104,7 +134,7 @@ class BatchItem(models.Model):
         return f"{self.good}({self.serial})"
 
     def get_absolute_url(self):
-        return reverse("stocks:batch-detail", args=[str(self.slug)])
+        return reverse("stocks:batch-item-detail", args=[str(self.slug)])
 
     def order_create(self):
         order = Order(
@@ -144,6 +174,13 @@ class Balance(models.Model):
         on_delete=models.PROTECT,
         verbose_name=_("Batch items"),
     )
+    slug = models.SlugField(
+        max_length=250, blank=True, editable=False, verbose_name=_("slug")
+    )
+
+    def get_absolute_url(self):
+        return reverse("stocks:balance-detail", args=[str(self.slug)])
+
     quantity_original = models.PositiveIntegerField(
         default=0, editable=False, verbose_name=_("Quantity original")
     )
@@ -167,7 +204,11 @@ class Balance(models.Model):
         return self.price_sum_original() + self.price_sum_item()
 
     def __str__(self):
-        return f"{self.stock.name}({self.batch_item})"
+        return f"{self.stock.name}({str(self.batch_item)})"
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.__str__())
+        super().save(*args, **kwargs)
 
     class Meta:
         unique_together = ("stock", "batch_item")
@@ -218,7 +259,7 @@ class Order(models.Model):
         default=False, editable=False, verbose_name=_("Is done")
     )
     slug = models.SlugField(
-        max_length=250, blank=True, editable=False, verbose_name=_("slug")
+        max_length=250, unique=True, blank=True, editable=False, verbose_name=_("slug")
     )
     created = models.DateTimeField(
         auto_now_add=True, editable=False, verbose_name=_("Created")
@@ -254,22 +295,38 @@ class Order(models.Model):
                 self.balance.save()
 
     def balance_outgoing(self):
+        """
+        Уменьшает количество товара на исходящем складе для данного batch_item,
+        если заказ не завершён и исходящий склад задан.
+        """
         if self.outgoing is not None and not self.is_done:
             try:
-                outgoung_balance = self.outgoing.balance_set.get(
-                    batch_item_id=self.batch_item_id
-                )
-                outgoung_balance.quantity_original -= self.quantity_original
-                outgoung_balance.quantity_item -= self.quantity_item
-                outgoung_balance.save()
+                with transaction.atomic():
+                    outgoing_balance = self.outgoing.balance_set.get(
+                        batch_item_id=self.batch_item_id
+                    )
+                    outgoing_balance.quantity_original -= self.quantity_original
+                    outgoing_balance.quantity_item -= self.quantity_item
+                    outgoing_balance.save()
             except Balance.DoesNotExist:
-                pass
+                logger.debug(
+                    f"Balance not found for stock_id={self.outgoing_id} and batch_item_id={self.batch_item_id}"
+                )
+
+    """
+    def sale_goods(self):
+        pass
+    """
 
     @transaction.atomic
     def save(self, *args, **kwargs):
-        self.slug = slugify(self.__str__())
-        if self.is_approved:
+        self.slug = slugify(str(self))
+        # Сохраняем объект, чтобы получить id и связанные объекты
+        super().save(*args, **kwargs)
+
+        if self.is_approved and not self.is_done:
             self.balance_outgoing()
             self.balance_incoming()
             self.is_done = True
-        super().save(*args, **kwargs)
+            # Обновляем только поле is_done, чтобы избежать лишнего сохранения всех полей
+            super().save(update_fields=["is_done"])

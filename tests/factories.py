@@ -8,7 +8,8 @@ factory.Faker._DEFAULT_LOCALE = "ru_RU"
 
 
 class StockFactory(DjangoModelFactory):
-    name = factory.Faker("word")
+    # Используем Sequence для гарантии уникальности
+    name = factory.Sequence(lambda n: f"Упаковка-{n}")
 
     class Meta:
         model = models.Stock
@@ -28,6 +29,29 @@ class BatchItemFactory(DjangoModelFactory):
     serial = factory.Faker("ssn")
     quantity_original = factory.Faker("random_digit_not_null")
     price_original = factory.Faker("random_digit_not_null")
+    production_date = factory.Faker("date")
+    expiration_date = factory.Faker("date")
 
     class Meta:
         model = models.BatchItem
+
+
+class BalanceFactory(DjangoModelFactory):
+    stock = factory.SubFactory(StockFactory)
+    batch_item = factory.SubFactory(BatchItemFactory)
+    quantity_original = factory.Faker("random_digit_not_null")
+    quantity_item = factory.Faker("random_digit_not_null")
+
+    class Meta:
+        model = models.Balance
+
+
+class OrderFactory(DjangoModelFactory):
+    incoming = factory.SubFactory(StockFactory)
+    outgoing = factory.SubFactory(StockFactory)
+    batch_item = factory.SubFactory(BatchItemFactory)
+    quantity_original = factory.Faker("random_digit_not_null")
+    quantity_item = factory.Faker("random_digit_not_null")
+
+    class Meta:
+        model = models.Order
