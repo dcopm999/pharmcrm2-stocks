@@ -68,4 +68,16 @@ urlpatterns = [
         views.BalanceDetailView.as_view(),
         name="balance-detail",
     ),
+    # Order
+    path("order/list/", views.OrderListView.as_view(), name="order-list"),
+    path(
+        "order/detail/<slug:slug>", views.OrderDetailView.as_view(), name="order-detail"
+    ),
+    path("order/create/", views.OrderCreateView.as_view(), name="order-create"),
+    path(
+        "order/update/<slug:slug>", views.OrderUpdateView.as_view(), name="order-update"
+    ),
+    path(
+        "order/delete/<slug:slug>", views.OrderDeleteView.as_view(), name="order-delete"
+    ),
 ]

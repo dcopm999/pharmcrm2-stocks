@@ -43,3 +43,14 @@ class BalanceFactory(DjangoModelFactory):
 
     class Meta:
         model = models.Balance
+
+
+class OrderFactory(DjangoModelFactory):
+    incoming = factory.SubFactory(StockFactory)
+    outgoing = factory.SubFactory(StockFactory)
+    batch_item = factory.SubFactory(BatchItemFactory)
+    quantity_original = factory.Faker("random_digit_not_null")
+    quantity_item = factory.Faker("random_digit_not_null")
+
+    class Meta:
+        model = models.Order

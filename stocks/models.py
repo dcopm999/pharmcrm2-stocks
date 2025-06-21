@@ -1,10 +1,14 @@
 # -*- coding: utf-8 -*-
+import logging
+
 import reversion
 from django.db import models, transaction
 from django.urls import reverse
 from django.utils.translation import gettext as _
 from mptt.models import MPTTModel, TreeForeignKey
 from slugify import slugify
+
+logger = logging.getLogger(__name__)
 
 
 @reversion.register()
@@ -255,7 +259,7 @@ class Order(models.Model):
         default=False, editable=False, verbose_name=_("Is done")
     )
     slug = models.SlugField(
-        max_length=250, blank=True, editable=False, verbose_name=_("slug")
+        max_length=250, unique=True, blank=True, editable=False, verbose_name=_("slug")
     )
     created = models.DateTimeField(
         auto_now_add=True, editable=False, verbose_name=_("Created")
@@ -291,25 +295,38 @@ class Order(models.Model):
                 self.balance.save()
 
     def balance_outgoing(self):
+        """
+        Уменьшает количество товара на исходящем складе для данного batch_item,
+        если заказ не завершён и исходящий склад задан.
+        """
         if self.outgoing is not None and not self.is_done:
             try:
-                outgoung_balance = self.outgoing.balance_set.get(
-                    batch_item_id=self.batch_item_id
-                )
-                outgoung_balance.quantity_original -= self.quantity_original
-                outgoung_balance.quantity_item -= self.quantity_item
-                outgoung_balance.save()
+                with transaction.atomic():
+                    outgoing_balance = self.outgoing.balance_set.get(
+                        batch_item_id=self.batch_item_id
+                    )
+                    outgoing_balance.quantity_original -= self.quantity_original
+                    outgoing_balance.quantity_item -= self.quantity_item
+                    outgoing_balance.save()
             except Balance.DoesNotExist:
-                pass
+                logger.debug(
+                    f"Balance not found for stock_id={self.outgoing_id} and batch_item_id={self.batch_item_id}"
+                )
 
+    """
     def sale_goods(self):
         pass
+    """
 
     @transaction.atomic
     def save(self, *args, **kwargs):
-        self.slug = slugify(self.__str__())
-        if self.is_approved:
+        self.slug = slugify(str(self))
+        # Сохраняем объект, чтобы получить id и связанные объекты
+        super().save(*args, **kwargs)
+
+        if self.is_approved and not self.is_done:
             self.balance_outgoing()
             self.balance_incoming()
             self.is_done = True
-        super().save(*args, **kwargs)
+            # Обновляем только поле is_done, чтобы избежать лишнего сохранения всех полей
+            super().save(update_fields=["is_done"])

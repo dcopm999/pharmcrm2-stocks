@@ -27,3 +27,15 @@ class BatchItamForm(ModelForm):
             "quantity_item",
             "price_item",
         ]
+
+
+class OrderForm(ModelForm):
+    class Meta:
+        model = models.Order
+        fields = [
+            "incoming",
+            "outgoing",
+            "batch_item",
+            "quantity_original",
+            "quantity_item",
+        ]

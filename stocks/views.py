@@ -114,3 +114,34 @@ class BalanceListView(mixins.PermissionRequiredMixin, generic.ListView):
 class BalanceDetailView(mixins.PermissionRequiredMixin, generic.DetailView):
     permission_required = "view_balance"
     model = models.Balance
+
+
+class OrderListView(mixins.PermissionRequiredMixin, generic.ListView):
+    permission_required = "view_order"
+    model = models.Order
+
+
+class OrderDetailView(mixins.PermissionRequiredMixin, generic.DetailView):
+    permission_required = "view_order"
+    model = models.Order
+
+
+class OrderCreateView(mixins.PermissionRequiredMixin, generic.CreateView):
+    permission_required = "add_order"
+    model = models.Order
+    form_class = forms.OrderForm
+
+
+class OrderUpdateView(mixins.PermissionRequiredMixin, generic.UpdateView):
+    permission_required = "change_order"
+    model = models.Order
+    form_class = forms.OrderForm
+
+    def get_success_url(self, *args, **kwargs):
+        return reverse_lazy("stocks:order-detail", kwargs={"slug": self.object.slug})
+
+
+class OrderDeleteView(mixins.PermissionRequiredMixin, generic.DeleteView):
+    permission_required = "delete_order"
+    model = models.Order
+    success_url = reverse_lazy("stocks:order-list")
